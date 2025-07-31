@@ -1,8 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import Table from 'react-bootstrap/Table';
+import Button from 'react-bootstrap/Button';
 
 const Dashboard = () => {
   const [projects, setProjects] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  // Pagination Logic
+  const totalPages = Math.ceil(projects.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentProjects = projects.slice(startIndex, startIndex + itemsPerPage);
+
+  const handlePrev = () => {
+    if (currentPage > 1) setCurrentPage(prev => prev - 1);
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
+  };
 
   function fetchData() {
     fetch("https://674e84f1635bad45618eebc1.mockapi.io/api/v1/projects")
@@ -33,10 +49,10 @@ const Dashboard = () => {
           </tr>
         </thead>
         <tbody>
-          {projects.length > 0 ? (
-            projects.map((p, i) => (
-              <tr key={i}>
-                <td>{i + 1}</td>
+          {currentProjects.length > 0 ? (
+            currentProjects.map((p, i) => (
+              <tr key={p.id}>
+                <td>{startIndex + i + 1}</td>
                 <td>{p.createdAt}</td>
                 <td>{p.ProjectName}</td>
                 <td>{p.Details}</td>
@@ -57,11 +73,26 @@ const Dashboard = () => {
             ))
           ) : (
             <tr>
-              <td className="text-muted py-3">No Projects available</td>
+              <td colSpan="9" className="text-muted text-center py-3">No Projects available</td>
             </tr>
           )}
         </tbody>
       </Table>
+
+      {/* Pagination Controls */}
+      <div className="d-flex justify-content-between mt-3">
+        <Button variant="primary" onClick={handlePrev} disabled={currentPage === 1}>
+          Previous
+        </Button>
+
+        <div className="align-self-center">
+          Page {currentPage} of {totalPages}
+        </div>
+
+        <Button variant="primary" onClick={handleNext} disabled={currentPage === totalPages}>
+          Next
+        </Button>
+      </div>
     </div>
   );
 };
